@@ -7,4 +7,8 @@ const validatePassword = (password) => {
   return password.length >= 8;
 }
 
-export { validateEmail, validatePassword }; 
+const getInitials = (name) => {
+  return name.split(" ").map((n) => n[0]).join("");
+}
+
+export { validateEmail, validatePassword, getInitials }; 
