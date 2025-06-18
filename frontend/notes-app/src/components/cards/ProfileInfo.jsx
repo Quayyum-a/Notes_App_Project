@@ -1,12 +1,17 @@
 import React from 'react'
+import { getInitials } from '../../utils/helper'
 
 const ProfileInfo = ({onLogout}) => {
   return (
-    <div className='flex items-center gap-2'>
-      <div className="w-12 h-12 bg-primary rounded-full flex items-center justify-center text-slate-950 ">TU</div>
+    <div className="flex items-center gap-2">
+      <div className="w-12 h-12 bg-primary rounded-full flex items-center justify-center text-slate-950 font-medium text-lg bg-slate-100">
+        {getInitials("Quayyum Ariyo")}
+      </div>
       <div>
-        <p className='text-sm font-medium'>Quayyum</p>
-        <button className='' onClick={onLogout}>Logout</button>
+        <p className="text-sm font-medium">Quayyum Ariyo</p>
+        <button className="text-sm text-slate-500 underline" onClick={onLogout}>
+          Logout
+        </button>
       </div>
     </div>
   );
