@@ -28,6 +28,6 @@
   }
 
   .input-label {
-    @apply text-sm;
+    @apply text-sm font-medium;
   }
 }
