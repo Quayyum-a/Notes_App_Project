@@ -36,10 +36,13 @@ const Home = () => {
   const getAllNotes = async () => {
     try {
       const response = await axiosInstance.get("/get-all-notes");
+      console.log("getAllNotes response:", response);
       if (response.data && response.data.notes) {
+        console.log("Notes data:", response.data.notes);
         setAllNotes(response.data.notes);
       }
     } catch (error) {
+      console.log("getAllNotes error:", error);
       console.log("An unexpected error occurred. Please try again.");
     }
   };
@@ -55,21 +58,28 @@ const Home = () => {
       <Navbar userInfo={userInfo} />
       <div className="container mx-auto">
         <div className="grid grid-cols-3 gap-4 mt-8">
-          {allNotes.map((item, index) => {
-            return (
-              <NoteCard
-              key={index}
-              title={item.title}
-              date={item.createdAt}
-              content={item.content}
-              tags={item.tags}
-                isPinned={item.isPinned}
-                onEdit={() => {}}
-                onDelete={() => {}}
-                onPinNote={() => {}}
-              />
-            );
-          })}
+          {console.log("allNotes state:", allNotes)}
+          {allNotes.length === 0 ? (
+            <p className="text-gray-500 text-center col-span-3">
+              No notes found. Create your first note!
+            </p>
+          ) : (
+            allNotes.map((item) => {
+              return (
+                <NoteCard
+                  key={item._id}
+                  title={item.title}
+                  date={item.createdAt}
+                  content={item.content}
+                  tags={item.tags}
+                  isPinned={item.isPinned}
+                  onEdit={() => {}}
+                  onDelete={() => {}}
+                  onPinNote={() => {}}
+                />
+              );
+            })
+          )}
         </div>
       </div>
       <button
