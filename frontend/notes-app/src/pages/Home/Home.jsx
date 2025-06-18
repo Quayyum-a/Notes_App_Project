@@ -15,32 +15,39 @@ const Home = () => {
   });
 
   const [userInfo, setUserInfo] = useState(null);
-
+  const [allNotes, setAllNotes] = useState([]);
   const navigate = useNavigate();
 
   const getUserInfo = async () => {
-    console.log("getUserInfo called");
-    console.log("Token in localStorage:", localStorage.getItem("token"));
     try {
       const response = await axiosInstance.get("/get-user");
-      console.log("getUser response:", response);
+
       if (response.data && response.data.user) {
         setUserInfo(response.data.user);
       }
     } catch (error) {
-      console.log("getUser error:", error);
       if (error.response && error.response.status === 401) {
-        console.log(
-          "401 error - clearing localStorage and redirecting to login"
-        );
         localStorage.clear();
         navigate("/login");
       }
     }
   };
 
+  const getAllNotes = async () => {
+    try {
+      const response = await axiosInstance.get("/get-all-notes");
+      if (response.data && response.data.notes) {
+        setAllNotes(response.data.notes);
+      }
+    } catch (error) {
+      console.log("An unexpected error occurred. Please try again.");
+    }
+  };
+
   useEffect(() => {
     getUserInfo();
+    getAllNotes();
+    return () => {};
   }, []);
 
   return (
@@ -48,16 +55,21 @@ const Home = () => {
       <Navbar userInfo={userInfo} />
       <div className="container mx-auto">
         <div className="grid grid-cols-3 gap-4 mt-8">
-          <NoteCard
-            title="Note 1"
-            date="2025-06-18"
-            content="This is a note"
-            tags="#Meeting"
-            isPinned={true}
-            onEdit={() => {}}
-            onDelete={() => {}}
-            onPinNote={() => {}}
-          />
+          {allNotes.map((item, index) => {
+            return (
+              <NoteCard
+              key={index}
+              title={item.title}
+              date={item.createdAt}
+              content={item.content}
+              tags={item.tags}
+                isPinned={item.isPinned}
+                onEdit={() => {}}
+                onDelete={() => {}}
+                onPinNote={() => {}}
+              />
+            );
+          })}
         </div>
       </div>
       <button
