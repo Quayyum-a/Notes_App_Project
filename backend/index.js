@@ -72,6 +72,46 @@ app.post("/create-account", async (req, res) => {
   });
 });
 
+app.post("/login", async (req, res) => {
+  if (!req.body) {
+    return res.status(400).json({ error: true, message: "Request body is required" });
+  }
+  const { email, password } = req.body;
+
+  if (!email) {
+    return res.status(400).json({ error: true, message: "Email is required" });
+  }
+  if (!password) {
+    return res.status(400).json({ error: true, message: "Password is required" });
+  }
+  
+  const returnedUser = await User.findOne({ email: email });
+  if (!returnedUser) {
+    return res.status(400).json({ error: true, message: "User not found" });
+  }
+  
+  if(returnedUser.email == email && returnedUser.password == password) {
+    const user = {user: returnedUser}
+    const accessToken = jwt.sign(
+      {
+        user,
+      },
+      process.env.ACCESS_TOKEN_SECRET,{
+        expiresIn: "36000m",
+      }
+    );
+    res.json({
+      error: false,
+      email,
+      message: "Login successful",
+      accessToken,
+    });
+  } else {
+    return res.status(400).json({ error: true, message: "Invalid credentials" });
+  }
+});
+
+app.post()
 app.listen(8000);
 
 module.exports = app;
