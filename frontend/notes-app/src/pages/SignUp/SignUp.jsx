@@ -1,4 +1,6 @@
-import React from 'react'
+import React, { useState } from 'react'
+import Navbar from '../../components/Navbar/Navbar'
+import { validateEmail, validatePassword } from '../../utils/helper'
 
 const SignUp = () => {
   const [email, setEmail] = useState("");
@@ -13,6 +15,12 @@ const SignUp = () => {
     }
 
     if(!validatePassword(password)) {
+      setError("Invalid password, please enter a valid password");
+      return;
+    }
+
+    setError("");
+  }
     return (
      <>
       <Navbar />
@@ -20,7 +28,7 @@ const SignUp = () => {
       <div className="flex justify-center items-center mt-28">
         <div className="bg-white p-8 rounded-lg shadow-md w-96">
           <form onSubmit={handleSignUp}>
-            <h4 className="text-2xl mb-7">Login</h4>
+            <h4 className="text-2xl mb-7">SignUp</h4>
           </form>
         </div>
       </div>
