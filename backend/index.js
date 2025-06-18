@@ -119,6 +119,19 @@ app.post("/login", async (req, res) => {
   }
 });
 
+app.get("/get-user", async (req, res) => {
+  const {user} = req.user;
+
+  const isUser = await User.findOne({_id: user._id})
+  if(!isUser){
+    return res.sendStatus(401);
+  }
+  return res.json({
+    user : isUser,
+    message: ""
+  });
+})
+
 app.post("/add-note", authenticateToken, async (req, res) => {
   if (!req.body) {
     return res
@@ -268,6 +281,8 @@ app.put("/update-note-pinned/:noteId", authenticateToken, async (req, res) => {
     });
   }
 });
+
+
 app.listen(8000);
 
 module.exports = app;
