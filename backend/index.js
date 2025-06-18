@@ -5,6 +5,7 @@ const config = require("./config.json");
 mongoose.connect(config.connectionString);
 
 const User = require("./models/user");
+const Note = require("./models/note");
 
 const express = require("express");
 const cors = require("cors");
@@ -111,7 +112,14 @@ app.post("/login", async (req, res) => {
   }
 });
 
-app.post()
+app.post("/add-note", authenticateToken, async (req, res) => {
+  if (!req.body) {
+    return res.status(400).json({ error: true, message: "Request body is required" });
+  }
+  const { title, content, tags } = req.body;
+  
+  
+})
 app.listen(8000);
 
 module.exports = app;
