@@ -120,7 +120,7 @@ app.post("/login", async (req, res) => {
 });
 
 app.get("/get-user", authenticateToken, async (req, res) => {
-  const { user } = req.user;
+  const { user } = req.user.user;
 
   const isUser = await User.findOne({ _id: user._id });
   if (!isUser) {
@@ -144,7 +144,7 @@ app.post("/add-note", authenticateToken, async (req, res) => {
       .json({ error: true, message: "Request body is required" });
   }
   const { title, content, tags } = req.body;
-  const user = req.user.user;
+  const user = req.user.user.user;
 
   if (!title) {
     return res.status(400).json({ error: true, message: "Title is required" });
@@ -178,7 +178,7 @@ app.post("/add-note", authenticateToken, async (req, res) => {
 app.put("/edit-note/:noteId", authenticateToken, async (req, res) => {
   const noteId = req.param.noteId;
   const { title, content, tags, isPinned } = req.body;
-  const { user } = req.user;
+  const { user } = req.user.user;
 
   if (!title && !content && !tags) {
     return res
@@ -213,7 +213,7 @@ app.put("/edit-note/:noteId", authenticateToken, async (req, res) => {
 });
 
 app.get("/get-all-notes/", authenticateToken, async (req, res) => {
-  const { user } = req.user;
+  const { user } = req.user.user;
 
   try {
     const notes = await Note.find({ userId: user._id }).sort({
@@ -234,7 +234,7 @@ app.get("/get-all-notes/", authenticateToken, async (req, res) => {
 
 app.delete("/delete-note/:noteId", authenticateToken, async (req, res) => {
   const noteId = req.params.noteId;
-  const { user } = req.user;
+  const { user } = req.user.user;
 
   try {
     const note = await Note.findOne({ _id: noteId, userId: user._id });
@@ -260,7 +260,7 @@ app.delete("/delete-note/:noteId", authenticateToken, async (req, res) => {
 app.put("/update-note-pinned/:noteId", authenticateToken, async (req, res) => {
   const noteId = req.param.noteId;
   const { isPinned } = req.body;
-  const { user } = req.user;
+  const { user } = req.user.user;
 
   try {
     const note = await Note.findOne({ _id: noteId, userId: user._id });
@@ -281,7 +281,7 @@ app.put("/update-note-pinned/:noteId", authenticateToken, async (req, res) => {
   } catch (error) {
     return res.status(500).json({
       error: true,
-      message: "Internal server error",
+      message: "Internal Server Error",
     });
   }
 });
