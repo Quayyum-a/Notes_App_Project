@@ -156,6 +156,24 @@ app.post("/add-note", authenticateToken, async (req, res) => {
       .json({ error: true, message: "Internal server error" });
   }
 });
+
+app.post("/edit-note/:noteId", authenticateToken, async (req, res) => {
+  const noteId = req.param.noteId;
+  const {title, content, tags, isPinned} = req.body;
+  const {user} = req.user;
+
+  if(!title && !content && !tags){
+    return res.status(400).json({error: true, message: "No changes provided"})
+  }
+  try {
+    const note = await Note.findOne({_id : noteId, userId: user._id});
+
+    if(!note){
+      return res.status(404).json({error : true, message: "Note not found"})
+    }
+  }
+});
+
 app.listen(8000);
 
 module.exports = app;
