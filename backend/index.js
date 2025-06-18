@@ -75,7 +75,9 @@ app.post("/create-account", async (req, res) => {
 
 app.post("/login", async (req, res) => {
   if (!req.body) {
-    return res.status(400).json({ error: true, message: "Request body is required" });
+    return res
+      .status(400)
+      .json({ error: true, message: "Request body is required" });
   }
   const { email, password } = req.body;
 
@@ -83,21 +85,24 @@ app.post("/login", async (req, res) => {
     return res.status(400).json({ error: true, message: "Email is required" });
   }
   if (!password) {
-    return res.status(400).json({ error: true, message: "Password is required" });
+    return res
+      .status(400)
+      .json({ error: true, message: "Password is required" });
   }
-  
+
   const returnedUser = await User.findOne({ email: email });
   if (!returnedUser) {
     return res.status(400).json({ error: true, message: "User not found" });
   }
-  
-  if(returnedUser.email == email && returnedUser.password == password) {
-    const user = {user: returnedUser}
+
+  if (returnedUser.email == email && returnedUser.password == password) {
+    const user = { user: returnedUser };
     const accessToken = jwt.sign(
       {
         user,
       },
-      process.env.ACCESS_TOKEN_SECRET,{
+      process.env.ACCESS_TOKEN_SECRET,
+      {
         expiresIn: "36000m",
       }
     );
@@ -108,18 +113,49 @@ app.post("/login", async (req, res) => {
       accessToken,
     });
   } else {
-    return res.status(400).json({ error: true, message: "Invalid credentials" });
+    return res
+      .status(400)
+      .json({ error: true, message: "Invalid credentials" });
   }
 });
 
 app.post("/add-note", authenticateToken, async (req, res) => {
   if (!req.body) {
-    return res.status(400).json({ error: true, message: "Request body is required" });
+    return res
+      .status(400)
+      .json({ error: true, message: "Request body is required" });
   }
   const { title, content, tags } = req.body;
-  
-  
-})
+  const user = req.user.user;
+
+  if (!title) {
+    return res.status(400).json({ error: true, message: "Title is required" });
+  }
+  if (!content) {
+    return res
+      .status(400)
+      .json({ error: true, message: "Content is required" });
+  }
+
+  try {
+    const newNote = new Note({
+      title,
+      content,
+      tags: tags || [],
+      userId: user._id,
+    });
+    await newNote.save();
+    res.json({
+      error: false,
+      newNote,
+      message: "Note added successfully",
+    });
+  } catch (error) {
+    return res
+      .status(500)
+      .json({ error: true, message: "Internal server error" });
+  }
+});
 app.listen(8000);
 
 module.exports = app;
