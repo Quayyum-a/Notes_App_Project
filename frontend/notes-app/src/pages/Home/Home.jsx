@@ -6,12 +6,20 @@ import AddEditNotes from "./AddEditNotes";
 import Modal from "react-modal";
 import { useNavigate } from "react-router-dom";
 import axiosInstance from "../../utils/axiosInstance";
+import Toast from "../../components/Toast Message/Toast";
+import EmptyCard from "../../components/EmptyCard/EmptyCard";
 
 const Home = () => {
   const [showAddEditModal, setShowAddEditModal] = useState({
     isShown: false,
     type: "add",
     data: null,
+  });
+
+  const [showToastMsg, setShowToastMsg] = useState({
+    isShown: false,
+    data: null,
+    type: "add",
   });
 
   const [userInfo, setUserInfo] = useState(null);
@@ -23,6 +31,20 @@ const Home = () => {
       isShown: true,
       type: "edit",
       data: noteData,
+    });
+  };
+
+  const showToastMessage = (message, type) => {
+    setShowToastMsg({
+      isShown: true,
+      message,
+      type,
+    });
+  };
+  const handleCloseToast = () => {
+    setShowToastMsg({
+      isShown: false,
+      message: "null",
     });
   };
 
@@ -44,7 +66,7 @@ const Home = () => {
   const getAllNotes = async () => {
     try {
       const response = await axiosInstance.get("/get-all-notes");
-      console.log("getAllNotes response:", response);
+
       if (response.data && response.data.notes) {
         console.log("Notes data:", response.data.notes);
         setAllNotes(response.data.notes);
@@ -55,6 +77,27 @@ const Home = () => {
     }
   };
 
+  const deleteNote = async (data) => {
+    const noteId = data._id;
+    try {
+      const response = await axiosInstance.delete(`/delete-note/${noteId}`);
+      if (response.data && !response.data.error) {
+        showToastMessage("Note deleted successfully", "delete");
+        await getAllNotes();
+      }
+    } catch (error) {
+      if (
+        error.response &&
+        error.response.data &&
+        error.response.data.message
+      ) {
+        showToastMessage(
+          "An unexpected error occurred. Please try again.",
+          "delete"
+        );
+      }
+    }
+  };
   useEffect(() => {
     getUserInfo();
     getAllNotes();
@@ -65,30 +108,25 @@ const Home = () => {
     <>
       <Navbar userInfo={userInfo} />
       <div className="container mx-auto">
-        <div className="grid grid-cols-3 gap-4 mt-8">
-          {console.log("allNotes state:", allNotes)}
-          {allNotes.length === 0 ? (
-            <p className="text-gray-500 text-center col-span-3">
-              No notes found. Create your first note!
-            </p>
-          ) : (
-            allNotes.map((item) => {
-              return (
-                <NoteCard
-                  key={item._id}
-                  title={item.title}
-                  date={item.createdAt}
-                  content={item.content}
-                  tags={item.tags}
-                  isPinned={item.isPinned}
-                  onEdit={() => handleEditNote(item)}
-                  onDelete={() => {}}
-                  onPinNote={() => {}}
-                />
-              );
-            })
-          )}
-        </div>
+        {allNotes.length > 0 ? (
+          <div className="grid grid-cols-3 gap-4 mt-8">
+            {allNotes.map((item, index) => (
+              <NoteCard
+                key={item._id}
+                title={item.title}
+                date={item.createdAt}
+                content={item.content}
+                tags={item.tags}
+                isPinned={item.isPinned}
+                onEdit={() => handleEditNote(item)}
+                onDelete={() => deleteNote(item)}
+                onPinNote={() => {}}
+              />
+            ))}
+          </div>
+        ) : (
+          <EmptyCard message="No notes found. Add your first note!" />
+        )}
       </div>
       <button
         className="w-16 h-16 flex items-center justify-center rounded-2xl bg-blue-500 hover:bg-blue-600 absolute bottom-10 right-10"
@@ -125,8 +163,15 @@ const Home = () => {
             });
           }}
           getAllNotes={getAllNotes}
+          showToastMessage={showToastMessage}
         />
       </Modal>
+      <Toast
+        isShown={showToastMsg.isShown}
+        message={showToastMsg.message}
+        type={showToastMsg.type}
+        onClose={handleCloseToast}
+      />
     </>
   );
 };
