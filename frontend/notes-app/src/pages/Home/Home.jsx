@@ -18,6 +18,14 @@ const Home = () => {
   const [allNotes, setAllNotes] = useState([]);
   const navigate = useNavigate();
 
+  const handleEditNote = (noteData) => {
+    setShowAddEditModal({
+      isShown: true,
+      type: "edit",
+      data: noteData,
+    });
+  };
+
   const getUserInfo = async () => {
     try {
       const response = await axiosInstance.get("/get-user");
@@ -73,7 +81,7 @@ const Home = () => {
                   content={item.content}
                   tags={item.tags}
                   isPinned={item.isPinned}
-                  onEdit={() => {}}
+                  onEdit={() => handleEditNote(item)}
                   onDelete={() => {}}
                   onPinNote={() => {}}
                 />
@@ -116,6 +124,7 @@ const Home = () => {
               data: null,
             });
           }}
+          getAllNotes={getAllNotes}
         />
       </Modal>
     </>
