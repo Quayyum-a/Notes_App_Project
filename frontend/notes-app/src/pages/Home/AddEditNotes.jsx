@@ -3,25 +3,36 @@ import { TagInput } from "../../components/input/TagInput";
 import { MdClose } from "react-icons/md";
 import axiosInstance from "../../utils/axiosInstance";
 
-const AddEditNotes = ({ noteData, type, onClose, getAllNotes }) => {
+const AddEditNotes = ({
+  noteData,
+  type,
+  onClose,
+  getAllNotes,
+  showToastMessage,
+}) => {
   const [title, setTitle] = useState(noteData?.title || "");
   const [content, setContent] = useState(noteData?.content || "");
   const [tags, setTags] = useState(noteData?.tags || []);
   const [error, setError] = useState("");
 
   const addNote = async () => {
-    try{
+    try {
       const response = await axiosInstance.post("/add-note", {
         title,
         content,
         tags,
       });
-      if(response.data && response.data.note){
+      if (response.data && response.data.note) {
         await getAllNotes();
         onClose();
+        showToastMessage("Note added successfully", "add");
       }
     } catch (error) {
-      if(error.response && error.response.data && error.response.data.message){
+      if (
+        error.response &&
+        error.response.data &&
+        error.response.data.message
+      ) {
         setError(error.response.data.message);
       } else {
         setError("An unexpected error occurred. Please try again.");
@@ -39,6 +50,7 @@ const AddEditNotes = ({ noteData, type, onClose, getAllNotes }) => {
       if (response.data && response.data.note) {
         await getAllNotes();
         onClose();
+        showToastMessage("Note updated successfully", "edit");
       }
     } catch (error) {
       if (
@@ -53,23 +65,23 @@ const AddEditNotes = ({ noteData, type, onClose, getAllNotes }) => {
     }
   };
 
-  const handleAddNote = () => {
-    if(!title.trim()) {
+  const handleAddNote = async () => {
+    if (!title.trim()) {
       setError("Title is required");
       return;
     }
-    if(!content.trim()) {
+    if (!content.trim()) {
       setError("Content is required");
       return;
     }
     setError("");
 
-    if(type === "edit") {
-      editNote();
+    if (type === "edit") {
+      await editNote();
     } else {
-      addNote();
+      await addNote();
     }
-  }
+  };
 
   return (
     <div className="relative">
