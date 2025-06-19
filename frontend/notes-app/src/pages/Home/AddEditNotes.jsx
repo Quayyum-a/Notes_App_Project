@@ -1,17 +1,56 @@
 import React, { useState } from "react";
 import { TagInput } from "../../components/input/TagInput";
 import { MdClose } from "react-icons/md";
+import axiosInstance from "../../utils/axiosInstance";
 
-const AddEditNotes = ({ noteData, type, onClose }) => {
-  const [title, setTitle] = useState("");
-  const [content, setContent] = useState("");
-  const [tags, setTags] = useState([]);
+const AddEditNotes = ({ noteData, type, onClose, getAllNotes }) => {
+  const [title, setTitle] = useState(noteData?.title || "");
+  const [content, setContent] = useState(noteData?.content || "");
+  const [tags, setTags] = useState(noteData?.tags || []);
   const [error, setError] = useState("");
 
   const addNote = async () => {
+    try{
+      const response = await axiosInstance.post("/add-note", {
+        title,
+        content,
+        tags,
+      });
+      if(response.data && response.data.note){
+        await getAllNotes();
+        onClose();
+      }
+    } catch (error) {
+      if(error.response && error.response.data && error.response.data.message){
+        setError(error.response.data.message);
+      } else {
+        setError("An unexpected error occurred. Please try again.");
+      }
+    }
   };
 
   const editNote = async () => {
+    try {
+      const response = await axiosInstance.put(`/edit-note/${noteData._id}`, {
+        title,
+        content,
+        tags,
+      });
+      if (response.data && response.data.note) {
+        await getAllNotes();
+        onClose();
+      }
+    } catch (error) {
+      if (
+        error.response &&
+        error.response.data &&
+        error.response.data.message
+      ) {
+        setError(error.response.data.message);
+      } else {
+        setError("An unexpected error occurred. Please try again.");
+      }
+    }
   };
 
   const handleAddNote = () => {
@@ -71,7 +110,7 @@ const AddEditNotes = ({ noteData, type, onClose }) => {
         className="btn-primary font-medium mt-5 p-3"
         onClick={handleAddNote}
       >
-        Save
+        {type === "edit" ? "Update" : "Save"}
       </button>
     </div>
   );
