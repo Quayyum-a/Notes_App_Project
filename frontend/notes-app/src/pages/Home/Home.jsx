@@ -24,6 +24,8 @@ const Home = () => {
 
   const [userInfo, setUserInfo] = useState(null);
   const [allNotes, setAllNotes] = useState([]);
+  const [isSearching, setIsSearching] = useState(false);
+
   const navigate = useNavigate();
 
   const handleEditNote = (noteData) => {
@@ -98,6 +100,43 @@ const Home = () => {
       }
     }
   };
+
+  const searchNote = async (query) => {
+    try {
+      setIsSearching(true);
+      const response = await axiosInstance.get("/search-notes", {
+        params: { query },
+      });
+      if (response.data && response.data.notes) {
+        setAllNotes(response.data.notes);
+      } else {
+        setAllNotes([]);
+      }
+    } catch (error) {
+      setAllNotes([]);
+      console.log("searchNote error:", error);
+    }
+  };
+
+  const updateIsPinned = async (data) => {
+    const noteId = data._id;
+     try {
+      const response = await axiosInstance.put("/update-note-pinned/"+ noteId,{
+        isPinned: !noteId.isPinned;
+      }
+      if (response.data && response.data.note) {
+        await getAllNotes();
+        showToastMessage("Note updated successfully", "edit");
+      }
+    } catch (error) {
+      
+    }
+  }
+  const handleClearSearch = () => {
+    setIsSearching(false);
+    getAllNotes();
+  };
+
   useEffect(() => {
     getUserInfo();
     getAllNotes();
@@ -106,7 +145,11 @@ const Home = () => {
 
   return (
     <>
-      <Navbar userInfo={userInfo} />
+      <Navbar
+        userInfo={userInfo}
+        searchNote={searchNote}
+        handleClearSearch={handleClearSearch}
+      />
       <div className="container mx-auto">
         {allNotes.length > 0 ? (
           <div className="grid grid-cols-3 gap-4 mt-8">
@@ -125,7 +168,13 @@ const Home = () => {
             ))}
           </div>
         ) : (
-          <EmptyCard message="No notes found. Add your first note!" />
+          <EmptyCard
+            message={
+              isSearching
+                ? "No notes found matching your search."
+                : "No notes found. Add your first note!"
+            }
+          />
         )}
       </div>
       <button
