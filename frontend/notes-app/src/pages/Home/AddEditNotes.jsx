@@ -22,7 +22,7 @@ const AddEditNotes = ({
         content,
         tags,
       });
-      if (response.data && response.data.note) {
+      if (response.data && response.data.newNote) {
         await getAllNotes();
         onClose();
         showToastMessage("Note added successfully", "add");

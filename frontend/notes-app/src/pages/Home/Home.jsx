@@ -104,7 +104,7 @@ const Home = () => {
   const searchNote = async (query) => {
     try {
       setIsSearching(true);
-      const response = await axiosInstance.get("/search-notes", {
+      const response = await axiosInstance.get("/search-note", {
         params: { query },
       });
       if (response.data && response.data.notes) {
@@ -120,18 +120,21 @@ const Home = () => {
 
   const updateIsPinned = async (data) => {
     const noteId = data._id;
-     try {
-      const response = await axiosInstance.put("/update-note-pinned/"+ noteId,{
-        isPinned: !noteId.isPinned;
-      }
+    try {
+      const response = await axiosInstance.put(
+        "/update-note-pinned/" + noteId,
+        {
+          isPinned: !data.isPinned,
+        }
+      );
       if (response.data && response.data.note) {
         await getAllNotes();
-        showToastMessage("Note updated successfully", "edit");
+        showToastMessage("Note pinned successfully", "edit");
       }
     } catch (error) {
-      
+      console.log(error);
     }
-  }
+  };
   const handleClearSearch = () => {
     setIsSearching(false);
     getAllNotes();
@@ -153,7 +156,7 @@ const Home = () => {
       <div className="container mx-auto">
         {allNotes.length > 0 ? (
           <div className="grid grid-cols-3 gap-4 mt-8">
-            {allNotes.map((item, index) => (
+            {allNotes.map((item) => (
               <NoteCard
                 key={item._id}
                 title={item.title}
@@ -163,7 +166,7 @@ const Home = () => {
                 isPinned={item.isPinned}
                 onEdit={() => handleEditNote(item)}
                 onDelete={() => deleteNote(item)}
-                onPinNote={() => {}}
+                onPinNote={() => updateIsPinned(item)}
               />
             ))}
           </div>
