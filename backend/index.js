@@ -286,6 +286,35 @@ app.put("/update-note-pinned/:noteId", authenticateToken, async (req, res) => {
   }
 });
 
+app.get("/search-note", authenticateToken, async (req, res) => {
+  const { search } = req.body;
+  const { user } = req.user.user;
+
+  if (!search) {
+    return res.status(400).json({ error: true, message: "Query is required" });
+  }
+
+  try {
+    const matchingNotes = await Note.find({
+      userId: user._id,
+      $or: [
+        { title: { $regex: new RegExp(search, "i") } },
+        { content: { $regex: new RegExp(search, "i") } },
+      ],
+    });
+    return res.json({
+      error: false,
+      matchingNotes,
+      message: "Search results retrieved successfully",
+    });
+  } catch (error) {
+    return res.status(500).json({
+      error: true,
+      message: "Internal Server Error",
+    });
+  }
+});
+
 app.listen(8000);
 
 module.exports = app;
