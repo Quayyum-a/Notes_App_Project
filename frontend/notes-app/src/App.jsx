@@ -8,6 +8,9 @@ import {
 import Home from "./pages/Home/Home";
 import Login from "./pages/Login/Login";
 import SignUp from "./pages/SignUp/SignUp";
+import Modal from "react-modal";
+
+Modal.setAppElement("#root");
 
 const routes = (
   <Router>
