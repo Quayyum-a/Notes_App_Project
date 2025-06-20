@@ -4,12 +4,14 @@ import { validateEmail, validatePassword } from "../../utils/helper";
 import { Link, useNavigate } from "react-router-dom";
 import PasswordInput from "../../components/input/PasswordInput";
 import axiosInstance from "../../utils/axiosInstance";
+import Toast from "../../components/Toast Message/Toast";
 
 const SignUp = () => {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState(null);
+  const [showToast, setShowToast] = useState(false);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -24,16 +26,19 @@ const SignUp = () => {
 
     if (!name.trim()) {
       setError("Name is required");
+      setShowToast(true);
       return;
     }
 
     if (!validateEmail(email)) {
       setError("Invalid email, please enter a valid email");
+      setShowToast(true);
       return;
     }
 
     if (!validatePassword(password)) {
       setError("Invalid password, please enter a valid password");
+      setShowToast(true);
       return;
     }
 
@@ -47,6 +52,7 @@ const SignUp = () => {
       });
       if (response.data && response.data.error) {
         setError(response.data.message);
+        setShowToast(true);
         return;
       }
       if (response.data && response.data.accessToken) {
@@ -60,8 +66,10 @@ const SignUp = () => {
         error.response.data.message
       ) {
         setError(error.response.data.message);
+        setShowToast(true);
       } else {
         setError("An unexpected error occurred. Please try again.");
+        setShowToast(true);
       }
     }
   };
@@ -75,7 +83,7 @@ const SignUp = () => {
             <h4 className="text-2xl mb-7">SignUp</h4>
             <input
               type="text"
-              placeholder="Name"
+              placeholder="Full Name"
               className="input-box"
               value={name}
               onChange={(e) => setName(e.target.value)}
@@ -107,6 +115,12 @@ const SignUp = () => {
           </form>
         </div>
       </div>
+      <Toast
+        isShown={showToast && !!error}
+        message={error}
+        type="delete"
+        onClose={() => setShowToast(false)}
+      />
     </>
   );
 };
