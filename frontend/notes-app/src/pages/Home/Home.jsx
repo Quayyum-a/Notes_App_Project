@@ -25,6 +25,9 @@ const Home = () => {
   const [userInfo, setUserInfo] = useState(null);
   const [allNotes, setAllNotes] = useState([]);
   const [isSearching, setIsSearching] = useState(false);
+  const [loading, setLoading] = useState(true);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [noteToDelete, setNoteToDelete] = useState(null);
 
   const navigate = useNavigate();
 
@@ -52,6 +55,7 @@ const Home = () => {
 
   const getUserInfo = async () => {
     try {
+      setLoading(true);
       const response = await axiosInstance.get("/get-user");
 
       if (response.data && response.data.user) {
@@ -62,11 +66,14 @@ const Home = () => {
         localStorage.clear();
         navigate("/login");
       }
+    } finally {
+      setLoading(false);
     }
   };
 
   const getAllNotes = async () => {
     try {
+      setLoading(true);
       const response = await axiosInstance.get("/get-all-notes");
 
       if (response.data && response.data.notes) {
@@ -76,6 +83,8 @@ const Home = () => {
     } catch (error) {
       console.log("getAllNotes error:", error);
       console.log("An unexpected error occurred. Please try again.");
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -140,6 +149,24 @@ const Home = () => {
     getAllNotes();
   };
 
+  const handleDeleteClick = (note) => {
+    setNoteToDelete(note);
+    setShowDeleteModal(true);
+  };
+
+  const confirmDelete = async () => {
+    if (noteToDelete) {
+      await deleteNote(noteToDelete);
+      setShowDeleteModal(false);
+      setNoteToDelete(null);
+    }
+  };
+
+  const cancelDelete = () => {
+    setShowDeleteModal(false);
+    setNoteToDelete(null);
+  };
+
   useEffect(() => {
     getUserInfo();
     getAllNotes();
@@ -153,8 +180,12 @@ const Home = () => {
         searchNote={searchNote}
         handleClearSearch={handleClearSearch}
       />
-      <div className="container mx-auto">
-        {allNotes.length > 0 ? (
+      <div className="container mx-auto min-h-[300px]">
+        {loading ? (
+          <div className="flex justify-center items-center h-64">
+            <div className="animate-spin rounded-full h-16 w-16 border-t-4 border-blue-500 border-solid"></div>
+          </div>
+        ) : allNotes.length > 0 ? (
           <div className="grid grid-cols-3 gap-4 mt-8">
             {allNotes.map((item) => (
               <NoteCard
@@ -165,7 +196,7 @@ const Home = () => {
                 tags={item.tags}
                 isPinned={item.isPinned}
                 onEdit={() => handleEditNote(item)}
-                onDelete={() => deleteNote(item)}
+                onDelete={() => handleDeleteClick(item)}
                 onPinNote={() => updateIsPinned(item)}
               />
             ))}
@@ -217,6 +248,33 @@ const Home = () => {
           getAllNotes={getAllNotes}
           showToastMessage={showToastMessage}
         />
+      </Modal>
+      <Modal
+        isOpen={showDeleteModal}
+        onRequestClose={cancelDelete}
+        style={{ overlay: { backgroundColor: "rgba(0,0,0,0.2)" } }}
+        contentLabel="Confirm Delete"
+        className="w-[350px] bg-white rounded-md mx-auto mt-40 p-6 text-center"
+      >
+        <h3 className="text-lg font-semibold mb-4">Delete Note?</h3>
+        <p className="mb-6">
+          Are you sure you want to delete this note? This action cannot be
+          undone.
+        </p>
+        <div className="flex justify-center gap-4">
+          <button
+            className="btn-primary bg-red-500 hover:bg-red-600"
+            onClick={confirmDelete}
+          >
+            Delete
+          </button>
+          <button
+            className="btn-primary bg-gray-300 text-black hover:bg-gray-400"
+            onClick={cancelDelete}
+          >
+            Cancel
+          </button>
+        </div>
       </Modal>
       <Toast
         isShown={showToastMsg.isShown}
