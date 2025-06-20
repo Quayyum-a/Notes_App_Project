@@ -9,9 +9,14 @@ const ProfileInfo = ({ userInfo, onLogout }) => {
       </div>
       <div>
         <p className="text-sm font-medium">{userInfo?.fullName}</p>
-        <button className="text-sm text-slate-500 underline" onClick={onLogout}>
-          Logout
-        </button>
+        {userInfo && (
+          <button
+            className="text-sm text-slate-500 underline"
+            onClick={onLogout}
+          >
+            Logout
+          </button>
+        )}
       </div>
     </div>
   );
