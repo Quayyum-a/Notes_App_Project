@@ -138,7 +138,12 @@ const Home = () => {
       );
       if (response.data && response.data.note) {
         await getAllNotes();
-        showToastMessage("Note pinned successfully", "edit");
+        showToastMessage(
+          !data.isPinned
+            ? "Note pinned successfully"
+            : "Note unpinned successfully",
+          "pin"
+        );
       }
     } catch (error) {
       console.log(error);
@@ -226,7 +231,13 @@ const Home = () => {
 
       <Modal
         isOpen={showAddEditModal.isShown}
-        onRequestClose={() => {}}
+        onRequestClose={() => {
+          setShowAddEditModal({
+            isShown: false,
+            type: "add",
+            data: null,
+          });
+        }}
         style={{
           overlay: {
             backgroundColor: "rgba(0, 0, 0, 0.2)",
