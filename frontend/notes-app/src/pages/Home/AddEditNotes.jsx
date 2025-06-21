@@ -86,7 +86,8 @@ const AddEditNotes = ({
   return (
     <div className="relative">
       <button
-        className="w-10 h-10 rounded-full flex items-center justify-center absolute -top-3 -right-3 hover:bg-slate-50"
+        type="button"
+        className="w-10 h-10 rounded-full flex items-center justify-center absolute -top-3 -right-3 hover:bg-slate-50 z-20"
         onClick={onClose}
       >
         <MdClose className="text-xl text-slate-400" />
