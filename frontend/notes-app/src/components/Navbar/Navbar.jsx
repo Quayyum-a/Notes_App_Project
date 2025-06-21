@@ -29,9 +29,9 @@ const Navbar = ({ userInfo, searchNote, handleClearSearch }) => {
   };
 
   return (
-    <nav className="bg-gradient-to-r from-blue-50 to-green-50 shadow-lg rounded-xl mx-4 mt-4 mb-6 px-6 py-3 flex items-center justify-between transition-all duration-300">
+    <nav className="backdrop-blur-md bg-white/70 bg-gradient-to-r from-blue-50/80 to-green-50/80 shadow-lg rounded-xl mx-2 sm:mx-4 mt-4 mb-6 px-4 sm:px-6 py-4 flex flex-col sm:flex-row items-center justify-between gap-4 transition-all duration-300 border border-slate-100">
       <div
-        className="flex items-center gap-3 cursor-pointer select-none"
+        className="flex items-center gap-3 cursor-pointer select-none transition-transform hover:scale-105"
         onClick={() => navigate(isAuthenticated ? "/dashboard" : "/")}
       >
         <FaRegStickyNote className="text-3xl text-blue-500 drop-shadow-sm" />
@@ -40,7 +40,7 @@ const Navbar = ({ userInfo, searchNote, handleClearSearch }) => {
         </span>
       </div>
       {isAuthenticated && !isLoginPage && !isSignUpPage && (
-        <div className="flex-1 flex justify-center">
+        <div className="flex-1 flex justify-center w-full sm:w-auto">
           <SearchBar
             value={search}
             onChange={({ target }) => setSearch(target.value)}
